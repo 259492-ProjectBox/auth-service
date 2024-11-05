@@ -1,0 +1,105 @@
+import axios from "axios";
+import { t } from "elysia";
+
+interface CmuOAuthBasicInfo {
+	cmuitaccount: string;
+	firstname_EN: string;
+	lastname_EN: string;
+	student_id?: string;
+}
+
+interface JWTPayload {
+	[key: string]: string | number | undefined;
+	cmuAccount: string;
+	firstName: string;
+	lastName: string;
+	studentId?: string;
+}
+
+export const signIn = async ({
+	body,
+	set,
+	jwt,
+	cookies: { set: setCookie },
+}: any) => {
+	const { authorizationCode } = body as { authorizationCode: string };
+
+	if (typeof authorizationCode !== "string") {
+		set.status = 400;
+		return { ok: false, message: "Invalid authorization code" };
+	}
+
+	const accessToken = await getOAuthAccessToken(authorizationCode);
+	if (!accessToken) {
+		set.status = 400;
+		return { ok: false, message: "Cannot get OAuth access token" };
+	}
+
+	const cmuBasicInfo = await getCMUBasicInfo(accessToken);
+	if (!cmuBasicInfo) {
+		set.status = 400;
+		return { ok: false, message: "Cannot get cmu basic info" };
+	}
+
+	const payload: JWTPayload = {
+		cmuAccount: cmuBasicInfo.cmuitaccount,
+		firstName: cmuBasicInfo.firstname_EN,
+		lastName: cmuBasicInfo.lastname_EN,
+		studentId: cmuBasicInfo.student_id,
+	};
+
+	const token = await jwt.sign(payload);
+
+	setCookie("cmu-oauth-example-token", token, {
+		maxAge: 3600,
+		httpOnly: true,
+		sameSite: "lax",
+		secure: process.env.NODE_ENV === "production",
+		path: "/",
+		domain: "localhost",
+	});
+
+	return { ok: true };
+};
+
+async function getOAuthAccessToken(
+	authorizationCode: string
+): Promise<string | null> {
+	try {
+		const response = await axios.post(
+			process.env.CMU_OAUTH_GET_TOKEN_URL as string,
+			{},
+			{
+				params: {
+					code: authorizationCode,
+					redirect_uri: process.env.CMU_OAUTH_REDIRECT_URL,
+					client_id: process.env.CMU_OAUTH_CLIENT_ID,
+					client_secret: process.env.CMU_OAUTH_CLIENT_SECRET,
+					grant_type: "authorization_code",
+				},
+				headers: {
+					"content-type": "application/x-www-form-urlencoded",
+				},
+			}
+		);
+		return response.data.access_token;
+	} catch (err) {
+		return null;
+	}
+}
+
+async function getCMUBasicInfo(
+	accessToken: string
+): Promise<CmuOAuthBasicInfo | null> {
+	try {
+		const response = await axios.get(
+			process.env.CMU_OAUTH_GET_BASIC_INFO as string,
+			{
+				headers: { Authorization: `Bearer ${accessToken}` },
+			}
+		);
+		return response.data as CmuOAuthBasicInfo;
+	} catch (err) {
+		return null;
+	}
+}
