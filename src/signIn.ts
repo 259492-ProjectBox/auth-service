@@ -1,28 +1,28 @@
 import axios from "axios";
-import { t } from "elysia";
+import { CmuOAuthBasicInfo } from "../types/CmuOAuthBasicInfo";
+import { JWTPayload } from "../types/JWTPayload";
 
-interface CmuOAuthBasicInfo {
-	cmuitaccount: string;
-	firstname_EN: string;
-	lastname_EN: string;
-	student_id?: string;
-}
-
-interface JWTPayload {
-	[key: string]: string | number | undefined;
-	cmuAccount: string;
-	firstName: string;
-	lastName: string;
-	studentId?: string;
-}
-
+// interface JWTPayload {
+// 	[key: string]: string | number | undefined;
+// 	cmuAccount: string;
+// 	firstName: string;
+// 	lastName: string;
+// 	studentId?: string;
+// }
 export const signIn = async ({
 	body,
 	set,
 	jwt,
-	cookies: { set: setCookie },
-}: any) => {
-	const { authorizationCode } = body as { authorizationCode: string };
+	cookie,
+}: {
+	body: { authorizationCode: string };
+	set: any;
+	jwt: any;
+	cookie: any;
+}) => {
+	const { authorizationCode } = body;
+
+	// console.log("authCode", authorizationCode);
 
 	if (typeof authorizationCode !== "string") {
 		set.status = 400;
@@ -50,7 +50,9 @@ export const signIn = async ({
 
 	const token = await jwt.sign(payload);
 
-	setCookie("cmu-oauth-example-token", token, {
+	// Use the cookie object provided by Elysia
+	cookie["cmu-oauth-example-token"].set({
+		value: token,
 		maxAge: 3600,
 		httpOnly: true,
 		sameSite: "lax",
@@ -61,7 +63,6 @@ export const signIn = async ({
 
 	return { ok: true };
 };
-
 async function getOAuthAccessToken(
 	authorizationCode: string
 ): Promise<string | null> {

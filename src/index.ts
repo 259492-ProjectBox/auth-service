@@ -1,22 +1,8 @@
-import { Context, Elysia } from "elysia";
+import { Context, Elysia, t } from "elysia";
 import jwt from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 import { signIn } from "./signIn";
-
-const setOAuthCookie = (ctx: any) => {
-	ctx.cookies["cmu-oauth-example-token"] = {
-		value: ctx.cookies["cmu-oauth-example-token"],
-		options: {
-			maxAge: 3600,
-			httpOnly: true,
-			sameSite: "lax",
-			secure: process.env.NODE_ENV === "production",
-			path: "/",
-			domain: "localhost",
-		},
-	};
-};
 
 const authenticate = async ({
 	jwt,
@@ -48,8 +34,17 @@ const app = new Elysia()
 			exp: "1h",
 		})
 	)
-	// .use(setOAuthCookie) // Attach custom middleware for setting cookie
-	.post("/api/signin", signIn)
+	.post(
+		"/api/signin",
+		// Pass the entire context to signIn
+		(context) => signIn(context),
+		{
+			body: t.Object({
+				authorizationCode: t.String(),
+			}),
+		}
+	)
+	// Rest of your routes remain the same
 	.get("/api/whoami", async (context: any) => {
 		const decoded = await authenticate(context);
 
@@ -66,18 +61,16 @@ const app = new Elysia()
 		};
 	})
 	.post("/api/signout", async (ctx: any) => {
-		ctx.cookies["cmu-oauth-example-token"] = {
+		ctx.cookie["cmu-oauth-example-token"].set({
 			value: "",
-			options: {
-				maxAge: 0,
-				path: "/",
-				domain: "localhost",
-			},
-		};
+			maxAge: 0,
+			path: "/",
+			domain: "localhost",
+		});
 
 		return { ok: true };
 	});
 
-app.listen(3000);
+app.listen(4000);
 
-console.log("🦊 Server is running at http://localhost:3000");
+console.log("🦊 Server is running at http://localhost:4000");

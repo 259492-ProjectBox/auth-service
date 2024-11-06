@@ -1,0 +1,21 @@
+1. The user initiates a request to the `/api/signin` endpoint by sending a POST request with an `authorizationCode` in the request body.
+
+2. The `signIn` function is executed, and it first checks if the `authorizationCode` is a valid string. If not, it returns a 400 Bad Request response with an error message.
+
+3. Next, the function calls the `getOAuthAccessToken` helper function, passing in the `authorizationCode`. This function makes a POST request to the `CMU_OAUTH_GET_TOKEN_URL` endpoint, sending the necessary parameters to exchange the authorization code for an access token.
+
+4. If the `getOAuthAccessToken` function is successful in retrieving the access token, the flow continues. If not, it returns a 400 Bad Request response with an error message.
+
+5. With the access token, the `getCMUBasicInfo` helper function is called to fetch the user's basic information (CMU account, first name, last name, student ID) from the `CMU_OAUTH_GET_BASIC_INFO` endpoint.
+
+6. If the `getCMUBasicInfo` function is successful in retrieving the user's basic info, the flow continues. If not, it returns a 400 Bad Request response with an error message.
+
+7. After obtaining the user's basic info, the function constructs a JWT payload object with the relevant user data (CMU account, first name, last name, student ID).
+
+8. The `jwt.sign` function is then called to generate a JWT token using the payload and the `JWT_SECRET` environment variable.
+
+9. The generated JWT token is then set as a cookie on the client's browser using the `setCookie` function. The cookie is set with the name `cmu-oauth-example-token` and various options like `maxAge`, `httpOnly`, `sameSite`, `secure`, `path`, and `domain`.
+
+10. Finally, the function returns a successful response with `{ ok: true }`.
+
+This flow allows the user to authenticate with the CMU OAuth system, retrieve their basic user information, and have a JWT token set as a cookie in their browser for subsequent requests to the protected endpoints.

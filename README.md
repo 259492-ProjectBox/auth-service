@@ -1,5 +1,11 @@
 # Elysia with Bun runtime
 
+## Install Bun
+
+```
+https://bun.sh/docs/installation
+```
+
 ## Getting Started
 
 To get started with this template, simply paste this command into your terminal:

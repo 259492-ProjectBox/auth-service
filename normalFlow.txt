@@ -1,0 +1,17 @@
+1. User initiates sign-in on the client-side application.
+
+2. The client application redirects the user to the OAuth provider's authorization endpoint, typically something like `https://example.com/oauth/authorize`. This URL includes query parameters that identify the client application, such as the `client_id`, `redirect_uri`, and the desired `scope` of access.
+
+3. The user authenticates with the OAuth provider, typically by entering their username and password.
+
+4. The OAuth provider validates the user's credentials and displays a consent screen, asking the user to authorize the client application to access their information.
+
+5. If the user approves the request, the OAuth provider redirects the user back to the client application's `redirect_uri`, including an authorization code in the query parameters.
+
+6. The client application then sends a request to the OAuth provider's token endpoint, typically `https://example.com/oauth/token`, including the authorization code, `client_id`, `client_secret`, and `redirect_uri`.
+
+7. The OAuth provider validates the request and, if successful, responds with an access token and (optionally) a refresh token.
+
+8. The client application can now use the access token to make authenticated requests to the OAuth provider's API on behalf of the user.
+
+9. When the access token expires, the client application can use the refresh token to obtain a new access token without requiring the user to re-authenticate.
