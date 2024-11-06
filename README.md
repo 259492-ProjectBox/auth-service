@@ -32,7 +32,25 @@ bun add axios
 bun add @elysiajs/jwt
 bun add -d @types/jsonwebtoken
 bun add @elysiajs/cors
+bun add -d prisma
 ```
+
+# Prisma
+
+We can setup prisma project with prisma init
+
+`bunx prisma init`
+
+Then we can run prisma migrate to sync our database with Prisma schema:
+
+`bunx prisma migrate dev --name init`
+
+Prisma Client Generation: After running migrate dev, you should regenerate the Prisma Client to ensure your application is up to date with the latest database schema:
+
+`bunx prisma generate`
+
+Re-run Migration (if necessary): If there was an issue with the initial migration, you can reset and reapply it:
+`bunx prisma migrate reset`
 
 # This plugin has been merged into Elysia core and is deprecated
 

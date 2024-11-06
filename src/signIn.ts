@@ -22,8 +22,6 @@ export const signIn = async ({
 }) => {
 	const { authorizationCode } = body;
 
-	// console.log("authCode", authorizationCode);
-
 	if (typeof authorizationCode !== "string") {
 		set.status = 400;
 		return { ok: false, message: "Invalid authorization code" };
@@ -61,7 +59,7 @@ export const signIn = async ({
 		domain: "localhost",
 	});
 
-	return { ok: true };
+	return { ok: true, accessToken: token };
 };
 async function getOAuthAccessToken(
 	authorizationCode: string

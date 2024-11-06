@@ -1,29 +1,36 @@
-import { Context, Elysia, t } from "elysia";
+import { Elysia, t } from "elysia";
 import jwt from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 import { signIn } from "./signIn";
 
-const authenticate = async ({
-	jwt,
-	cookies: { "cmu-oauth-example-token": token },
-	set,
-}: any) => {
-	if (!token) {
+const authenticate = async (context: any) => {
+	const { jwt, cookie, set } = context;
+	// Direct access to cookie value
+	const token = cookie["cmu-oauth-example-token"];
+	console.log("token", token);
+
+	if (typeof token !== "string") {
 		set.status = 401;
-		return { ok: false, message: "Invalid token" };
+		return { ok: false, message: "Invalid token" } as ErrorResponse;
 	}
 
 	try {
 		const decoded = await jwt.verify(token);
 		if (!decoded) throw new Error("Invalid token");
-		return decoded;
+
+		return {
+			ok: true,
+			cmuAccount: decoded.cmuAccount,
+			firstName: decoded.firstName,
+			lastName: decoded.lastName,
+			studentId: decoded.studentId,
+		} as SuccessResponse;
 	} catch (error) {
 		set.status = 401;
-		return { ok: false, message: "Invalid token" };
+		return { ok: false, message: "Invalid token" } as ErrorResponse;
 	}
 };
-
 const app = new Elysia()
 	.use(swagger())
 	.use(cors())
@@ -45,31 +52,20 @@ const app = new Elysia()
 		}
 	)
 	// Rest of your routes remain the same
-	.get("/api/whoami", async (context: any) => {
-		const decoded = await authenticate(context);
-
-		if ("message" in decoded) {
-			return decoded;
-		}
-
-		return {
-			ok: true,
-			cmuAccount: decoded.cmuAccount,
-			firstName: decoded.firstName,
-			lastName: decoded.lastName,
-			studentId: decoded.studentId,
-		};
-	})
-	.post("/api/signout", async (ctx: any) => {
-		ctx.cookie["cmu-oauth-example-token"].set({
-			value: "",
-			maxAge: 0,
-			path: "/",
-			domain: "localhost",
-		});
-
-		return { ok: true };
+	.get("/api/whoami", async (context): Promise<WhoAmIResponse> => {
+		const response = await authenticate(context);
+		return response;
 	});
+// .post("/api/signout", async (ctx: any) => {
+// 	ctx.cookie["cmu-oauth-example-token"].set({
+// 		value: "",
+// 		maxAge: 0,
+// 		path: "/",
+// 		domain: "localhost",
+// 	});
+
+// 	return { ok: true };
+// });
 
 app.listen(4000);
 
