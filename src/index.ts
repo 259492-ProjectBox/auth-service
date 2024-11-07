@@ -7,9 +7,9 @@ import { signIn } from "./signIn";
 const authenticate = async (context: any) => {
 	const { jwt, cookie, set } = context;
 	// Direct access to cookie value
-	const token = cookie["cmu-oauth-example-token"];
-	console.log("token", token);
+	const { exampleToken } = cookie;
 
+	const token = exampleToken.value;
 	if (typeof token !== "string") {
 		set.status = 401;
 		return { ok: false, message: "Invalid token" } as ErrorResponse;

@@ -2,13 +2,6 @@ import axios from "axios";
 import { CmuOAuthBasicInfo } from "../types/CmuOAuthBasicInfo";
 import { JWTPayload } from "../types/JWTPayload";
 
-// interface JWTPayload {
-// 	[key: string]: string | number | undefined;
-// 	cmuAccount: string;
-// 	firstName: string;
-// 	lastName: string;
-// 	studentId?: string;
-// }
 export const signIn = async ({
 	body,
 	set,
@@ -33,6 +26,8 @@ export const signIn = async ({
 		return { ok: false, message: "Cannot get OAuth access token" };
 	}
 
+	// console.log("access ", accessToken);
+
 	const cmuBasicInfo = await getCMUBasicInfo(accessToken);
 	if (!cmuBasicInfo) {
 		set.status = 400;
@@ -47,17 +42,6 @@ export const signIn = async ({
 	};
 
 	const token = await jwt.sign(payload);
-
-	// Use the cookie object provided by Elysia
-	cookie["cmu-oauth-example-token"].set({
-		value: token,
-		maxAge: 3600,
-		httpOnly: true,
-		sameSite: "lax",
-		secure: process.env.NODE_ENV === "production",
-		path: "/",
-		domain: "localhost",
-	});
 
 	return { ok: true, accessToken: token };
 };
