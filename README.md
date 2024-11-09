@@ -52,8 +52,16 @@ Prisma Client Generation: After running migrate dev, you should regenerate the P
 Re-run Migration (if necessary): If there was an issue with the initial migration, you can reset and reapply it:
 `bunx prisma migrate reset`
 
+Remove prisma
+
+```bun remove prisma
+bun remove @prisma/client
+```
+
 # This plugin has been merged into Elysia core and is deprecated
 
 ```
+
 bun uninstall @elysiajs/cookie
+
 ```
