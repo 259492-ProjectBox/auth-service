@@ -3,6 +3,7 @@ import jwt from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 import { signIn } from "./signIn";
+import { formRoute } from "./form";
 
 const authenticate = async (context: any) => {
 	const { jwt, cookie, set } = context;
@@ -41,6 +42,7 @@ const app = new Elysia()
 			exp: "1h",
 		})
 	)
+
 	.post(
 		"/api/signin",
 		// Pass the entire context to signIn
@@ -56,6 +58,7 @@ const app = new Elysia()
 		const response = await authenticate(context);
 		return response;
 	});
+app.use(formRoute);
 // .post("/api/signout", async (ctx: any) => {
 // 	ctx.cookie["cmu-oauth-example-token"].set({
 // 		value: "",
@@ -69,4 +72,4 @@ const app = new Elysia()
 
 app.listen(4000);
 
-console.log("🦊 Server is running at http://localhost:4000");
+console.log("🦊 Server is running at http://localhost:4000 index");

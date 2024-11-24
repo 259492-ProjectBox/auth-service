@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course{
+  id           Int       @id @default(autoincrement())
+   courseCode           String      
+   courseName String
+   major  String
+}
+
+model FormConfig {
+  id           Int       @id @default(autoincrement()) // Primary Key
+  courseId  Int                                       // อ้างอิงไปยังคอร์ส
+  version      Int       @default(1)                   // เวอร์ชัน
+  formData     Json                                      // JSON ที่เก็บโครงสร้างฟอร์ม
+  createdAt    DateTime  @default(now())                // เวลาที่สร้าง
+
+  // ความสัมพันธ์กับ FormSubmission
+  FormSubmissions FormSubmission[]
+
+  @@unique([courseId, version]) // กำหนดให้ referenceId + version เป็น unique key
+}
+
+model FormSubmission {
+  id           Int       @id @default(autoincrement()) // Primary Key
+  formConfigId Int                                       // อ้างอิงไปยัง FormConfig
+  courseId     Int                                       // อ้างอิงไปยังคอร์ส
+  submittedData Json                                     // JSON ที่เก็บข้อมูลที่ผู้ใช้กรอก
+  submittedAt  DateTime  @default(now())                // เวลาที่ผู้ใช้กรอกข้อมูล
+
+  // ความสัมพันธ์กับ FormConfig
+  FormConfig FormConfig @relation(fields: [formConfigId], references: [id])
+
+  @@index([courseId]) // สร้าง index สำหรับการค้นหาด้วย courseId
+}
