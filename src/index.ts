@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { routes } from "./routes";
 import { middleware } from "./middleware";
 import { prisma } from "../utils/prisma";
+import { jwtMiddleware } from "./middleware/jwt";
 
 const app = new Elysia();
 

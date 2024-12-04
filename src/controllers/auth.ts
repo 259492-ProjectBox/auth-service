@@ -35,6 +35,7 @@ export const signIn = async ({ body, set, jwt }: any) => {
 	};
 
 	const token = await jwt.sign(payload);
+
 	if (!token) {
 		set.status = 500;
 		return { ok: false, message: "Failed to generate JWT token" };
