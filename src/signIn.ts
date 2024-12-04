@@ -1,6 +1,7 @@
 import axios from "axios";
 import { CmuOAuthBasicInfo } from "../types/CmuOAuthBasicInfo";
 import { JWTPayload } from "../types/JWTPayload";
+import { prisma } from "../utils/prisma";
 
 export const signIn = async ({
 	body,
@@ -26,13 +27,13 @@ export const signIn = async ({
 		return { ok: false, message: "Cannot get OAuth access token" };
 	}
 
-	// console.log("access ", accessToken);
-
 	const cmuBasicInfo = await getCMUBasicInfo(accessToken);
 	if (!cmuBasicInfo) {
 		set.status = 400;
-		return { ok: false, message: "Cannot get cmu basic info" };
+		return { ok: false, message: "Cannot get CMU basic info" };
 	}
+
+	const user = await saveOrUpdateUser(cmuBasicInfo);
 
 	const payload: JWTPayload = {
 		cmuAccount: cmuBasicInfo.cmuitaccount,
@@ -42,9 +43,14 @@ export const signIn = async ({
 	};
 
 	const token = await jwt.sign(payload);
+	if (!token) {
+		set.status = 500;
+		return { ok: false, message: "Failed to generate JWT token" };
+	}
 
 	return { ok: true, accessToken: token };
 };
+
 async function getOAuthAccessToken(
 	authorizationCode: string
 ): Promise<string | null> {
@@ -67,6 +73,7 @@ async function getOAuthAccessToken(
 		);
 		return response.data.access_token;
 	} catch (err) {
+		console.error("Error getting access token:", err);
 		return null;
 	}
 }
@@ -83,6 +90,72 @@ async function getCMUBasicInfo(
 		);
 		return response.data as CmuOAuthBasicInfo;
 	} catch (err) {
+		console.error("Error getting CMU basic info:", err);
 		return null;
+	}
+}
+
+async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
+	const existingUser = await prisma.user.findUnique({
+		where: { cmuAccount: cmuBasicInfo.cmuitaccount },
+	});
+
+	if (existingUser) {
+		// อัปเดตข้อมูลผู้ใช้ที่มีอยู่แล้ว
+		return await prisma.user.update({
+			where: { cmuAccount: cmuBasicInfo.cmuitaccount },
+			data: {
+				cmuAccountName: cmuBasicInfo.cmuitaccount_name,
+				studentId: cmuBasicInfo.student_id,
+				prenameId: cmuBasicInfo.prename_id,
+				prenameTH: cmuBasicInfo.prename_TH,
+				prenameEN: cmuBasicInfo.prename_EN,
+				firstNameTH: cmuBasicInfo.firstname_TH,
+				firstNameEN: cmuBasicInfo.firstname_EN,
+				lastNameTH: cmuBasicInfo.lastname_TH,
+				lastNameEN: cmuBasicInfo.lastname_EN,
+				organizationCode: cmuBasicInfo.organization_code,
+				organizationNameTH: cmuBasicInfo.organization_name_TH,
+				organizationNameEN: cmuBasicInfo.organization_name_EN,
+				it_accountType: cmuBasicInfo.itaccounttype_id,
+				it_accountTypeTH: cmuBasicInfo.itaccounttype_TH,
+				it_accountTypeEN: cmuBasicInfo.itaccounttype_EN,
+			},
+		});
+	} else {
+		// สร้างผู้ใช้ใหม่
+		return await prisma.user.create({
+			data: {
+				cmuAccount: cmuBasicInfo.cmuitaccount,
+				cmuAccountName: cmuBasicInfo.cmuitaccount_name,
+				studentId: cmuBasicInfo.student_id,
+				prenameId: cmuBasicInfo.prename_id,
+				prenameTH: cmuBasicInfo.prename_TH,
+				prenameEN: cmuBasicInfo.prename_EN,
+				firstNameTH: cmuBasicInfo.firstname_TH,
+				firstNameEN: cmuBasicInfo.firstname_EN,
+				lastNameTH: cmuBasicInfo.lastname_TH,
+				lastNameEN: cmuBasicInfo.lastname_EN,
+				organizationCode: cmuBasicInfo.organization_code,
+				organizationNameTH: cmuBasicInfo.organization_name_TH,
+				organizationNameEN: cmuBasicInfo.organization_name_EN,
+				it_accountType: cmuBasicInfo.itaccounttype_id,
+				it_accountTypeTH: cmuBasicInfo.itaccounttype_TH,
+				it_accountTypeEN: cmuBasicInfo.itaccounttype_EN,
+			},
+		});
+	}
+}
+
+function getRoleByAccountType(accountType: string): string {
+	switch (accountType) {
+		case "StdAcc":
+			return "student";
+		case "AlumAcc":
+			return "alumni";
+		case "MISEmpAcc":
+			return "employee";
+		default:
+			return "guest";
 	}
 }

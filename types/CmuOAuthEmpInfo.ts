@@ -1,0 +1,21 @@
+export type CmuOAuthEmpInfoDTO = {
+	email: string;
+	prenameTha: string;
+	prenameEng: string;
+	nameTha: string;
+	middleNameTha: string;
+	surNameTha: string;
+	nameEng: string;
+	middleNameEng: string;
+	surNameEng: string;
+	workStatusNameTha: string;
+	positionNameTha: string;
+	organizationID1: string;
+	organizationName1: string;
+	organizationID2: string;
+	organizationName2: number;
+	organizationID3: string;
+	organizationName3: string;
+	organizationID4: number;
+	organizationName4: string;
+};

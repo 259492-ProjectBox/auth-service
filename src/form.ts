@@ -35,24 +35,40 @@ formRoute.post(
 	async ({ body }: { body: CreateFormConfigBody }) => {
 		const { courseId, formData } = body;
 
-		const latestVersion = await prisma.formConfig.findFirst({
-			where: { courseId: courseId },
-			orderBy: { version: "desc" },
-		});
+		// Ensure courseId is a valid integer
+		if (!courseId || typeof courseId !== "number") {
+			return { error: "Invalid courseId. Must be a number." };
+		}
 
-		const newVersion = latestVersion ? latestVersion.version + 1 : 1;
+		// Ensure formData is valid
+		if (!formData || typeof formData !== "object") {
+			return { error: "Invalid formData. Must be an object." };
+		}
 
-		const newFormConfig = await prisma.formConfig.create({
-			data: {
-				courseId: courseId,
-				version: newVersion,
-				formData,
-			},
-		});
+		try {
+			const latestVersion = await prisma.formConfig.findFirst({
+				where: { courseId },
+				orderBy: { version: "desc" },
+			});
 
-		return newFormConfig;
+			const newVersion = latestVersion ? latestVersion.version + 1 : 1;
+
+			const newFormConfig = await prisma.formConfig.create({
+				data: {
+					courseId,
+					version: newVersion,
+					formData,
+				},
+			});
+
+			return newFormConfig;
+		} catch (error) {
+			console.error("Error creating form configuration:", error);
+			return { error: "Failed to create form configuration." };
+		}
 	}
 );
+
 interface SubmitData {
 	formConfigId: number;
 	courseId: number;
@@ -103,5 +119,5 @@ formRoute.post("/create-course", async ({ body }: { body: Course }) => {
 
 // Start the server
 formRoute.listen(4000, () => {
-	console.log("Server is running at http://localhost:4000");
+	console.log("Form is running");
 });
