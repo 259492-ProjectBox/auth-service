@@ -1,6 +1,7 @@
 import axios from "axios";
 import { CmuOAuthBasicInfo } from "../../types/CmuOAuthBasicInfo";
 import { prisma } from "../../utils/prisma";
+import { AccountType } from "@prisma/client";
 
 export async function getOAuthAccessToken(authorizationCode: string) {
 	try {
@@ -71,7 +72,7 @@ export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
 			},
 		});
 	} else {
-		return await prisma.user.create({
+		var user = await prisma.user.create({
 			data: {
 				cmuAccount: cmuBasicInfo.cmuitaccount,
 				cmuAccountName: cmuBasicInfo.cmuitaccount_name,
@@ -91,5 +92,30 @@ export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
 				it_accountTypeEN: cmuBasicInfo.itaccounttype_EN,
 			},
 		});
+		var roles = await prisma.role.findMany();
+		if (user.it_accountType === AccountType.StdAcc) {
+			// create student role in student_role table
+			const studentRoleId = roles.find((role) => role.name === "Student")?.id;
+			if (studentRoleId !== undefined) {
+				await prisma.userRole.create({
+					data: {
+						userId: user.id,
+						roleId: studentRoleId,
+					},
+				});
+			}
+		} else if (user.it_accountType === AccountType.MISEmpAcc) {
+			// create teacher role in teacher_role table
+			const teacherRoleId = roles.find((role) => role.name === "Teacher")?.id;
+			if (teacherRoleId !== undefined) {
+				await prisma.userRole.create({
+					data: {
+						userId: user.id,
+						roleId: teacherRoleId,
+					},
+				});
+			}
+		}
+		return user;
 	}
 }
