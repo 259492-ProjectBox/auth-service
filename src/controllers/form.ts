@@ -3,7 +3,7 @@ import { Elysia } from "elysia";
 import { prisma } from "../../utils/prisma";
 import { CreateFormConfigBody, SubmitData } from "../../types/Form";
 
-export const formRoutes = (app: Elysia) => {
+export const formController = (app: Elysia) => {
 	app
 		.get("/form-config/latest/:courseId", async ({ params }) => {
 			const { courseId } = params;
