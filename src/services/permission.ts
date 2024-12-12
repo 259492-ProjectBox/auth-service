@@ -17,3 +17,12 @@ export async function checkUserPermissions(
 			: "User does not have permission",
 	};
 }
+
+export async function createAdmin(
+	userId: string,
+	permission: string
+): Promise<PermissionResponse> {
+	// Create permission
+
+	return { ok: true, message: "Permission created" };
+}

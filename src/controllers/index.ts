@@ -5,6 +5,6 @@ import { permissionController } from "./permission";
 
 export const routes = (app: Elysia) => {
 	authController(app);
-	formController(app);
+	// formController(app);
 	permissionController(app);
 };
