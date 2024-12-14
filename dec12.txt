@@ -1,0 +1,17 @@
+section อาจจะไม่ต้องเก็บ
+project number ควรมี แต่ละภาคอาจจะไม่เหมือนกัน
+admin แต่ละภาคอยากรู้ เทอมนี้ ตอนส่งเช็คว่าคนส่งรึยัง ควรเช็คได้ครับ
+calenda จำเป็นต้องมีมั้ย มีไว้ก็ได้ ทำให้สวยกว่าเดิมหน่อย <notification online>
+การไม่ผูกกับ cmu account อาจจะดีกว่าเดิม
+data import history => ข้อมูลโปรเจ็คย้อนหลัง การ import project เก่าเข้าไปใน website อาจจะมี template ให้
+เวลา upload file มันควรจะ config size , นามสกุลไฟล์ pdf , cad , py ได้
+ควรจะมีการ manage level of sharing , public , level 1 , 2 , 3 abstract , file , all allowed
+รองรับ project master degree
+check หน่วยงานได้
+Term => Semester
+publication รายงาน ป โท ต้องตีพิมพ์ link อาจจะฟังกูไม่ดี
+filter ตอน search
+ทำยังไงก็ได้ให้ทำให้ search ทีเดียวแต่ ตอน list ขึ้นมาก็จะรู้ว่า search มาจากไหน
+sidebar อยากให้เลือกพับได้
+project อาจารย์รองรับมั้ย
+เรื่องการ share เหมือน google drive ทำรวมกับ sharing level

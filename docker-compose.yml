@@ -28,6 +28,22 @@ services:
     networks:
       - auth_network
 
+  auth_service:
+    build:
+      context: . # Path to the directory containing your Dockerfile
+      dockerfile: Dockerfile # Specify Dockerfile if it's named differently
+    image: auth_service:1.0
+    container_name: auth_service
+    restart: unless-stopped
+    ports:
+      - 3002:3002
+    networks:
+      - auth_network
+    depends_on:
+      - auth_db
+    env_file:
+      - .env
+
 volumes:
   auth_db:
     external: false

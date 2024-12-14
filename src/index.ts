@@ -17,8 +17,8 @@ app.get("/api/health", async () => {
 });
 
 // Start server
-app.listen(5000, () => {
-	console.log("Server running on http://localhost:5000");
+app.listen(3002, () => {
+	// console.log("Server running on http://localhost:3002");
 
 	// Ensure Prisma closes when the app exits
 	process.on("SIGINT", async () => {
