@@ -58,10 +58,12 @@ Remove prisma
 bun remove @prisma/client
 ```
 
-# This plugin has been merged into Elysia core and is deprecated
+# Because the bun prisma generate not working (bun not support)
+
+use drizzle orm instead
 
 ```
-
-bun uninstall @elysiajs/cookie
+bun add drizzle-orm postgres
+bun add -d drizzle-kit
 
 ```

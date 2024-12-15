@@ -1,42 +1,66 @@
-import { prisma } from "../../utils/prisma";
+import { dbcontext } from "../../utils/drizzle";
+import { eq, and } from "drizzle-orm";
+import { userRoles } from "../../drizzle/migrations/schema";
 
+/**
+ * Check if a user has a specific permission.
+ * @param userId The ID of the user to check permissions for.
+ * @returns True if the user has the required role, otherwise false.
+ */
 export async function getPermissions(userId: string): Promise<boolean> {
-	// Use prisma to get user roles
-	const roles = await prisma.userRole.findFirst({
-		where: { userId: userId, roleId: 1 }, // Check if user has roleId = 1
-	});
+	// Query the user_roles table to check if the user has roleId = 1
+	const role = await dbcontext
+		.select()
+		.from(userRoles)
+		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 1)));
+	// .first();
 
-	if (!roles) {
-		return false;
-	}
-	// Return true if the user has the required role, otherwise false
-	return true;
+	// Return true if a role is found, otherwise false
+	return !!role;
 }
 
+/**
+ * Create a permission for a user if the admin has the required permissions.
+ * @param adminId The ID of the admin user trying to assign the permission.
+ * @param userId The ID of the user to assign the permission to.
+ * @returns True if the permission is created or already exists, otherwise false.
+ */
 export async function createPermission(
 	adminId: string,
 	userId: string
 ): Promise<boolean> {
-	// Check if the user have admin permission
+	// Check if the admin has the required permissions
 	const hasPermission = await getPermissions(adminId);
 	if (!hasPermission) {
 		return false;
 	}
-	//Check if the user already has the permission
-	const userRole = await prisma.userRole.findFirst({
-		where: { userId: userId, roleId: 1 },
-	});
-	if (userRole) {
-		return true;
-	}
-	// Create permission
-	const newPermission = await prisma.userRole.create({
-		data: {
-			userId: userId,
-			roleId: 1,
-		},
+
+	// Check if the user already has the role
+	// const existingRole = await dbcontext
+	// 	.select()
+	// 	.from(userRoles)
+	// 	.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 1)));
+
+	const existingRole = await dbcontext.query.userRoles.findFirst({
+		where: and(
+			eq(userRoles.userid, userId), // userRoles.userid should be used here
+			eq(userRoles.roleid, 1) // userRoles.roleid should be used here
+		),
 	});
 
-	// Return true if the permission is created, otherwise false
-	return !!newPermission;
+	if (existingRole != null) {
+		return true;
+	}
+
+	// Insert a new role for the user
+	const newPermission = await dbcontext
+		.insert(userRoles)
+		.values({
+			userid: userId,
+			roleid: 1,
+		})
+		.returning();
+
+	// Return true if the permission is created successfully
+	return newPermission.length > 0;
 }

@@ -1,8 +1,6 @@
 import { Elysia } from "elysia";
 import { routes } from "./controllers";
 import { middleware } from "./middleware";
-import { prisma } from "../utils/prisma";
-import { jwtMiddleware } from "./middleware/jwt";
 
 const app = new Elysia();
 
@@ -17,13 +15,8 @@ app.get("/api/health", async () => {
 });
 
 // Start server
-app.listen(5000, () => {
-	console.log("Server running on http://localhost:5000");
+app.listen(3002, () => {
+	console.log("Server running on http://localhost:3002");
 
-	// Ensure Prisma closes when the app exits
-	process.on("SIGINT", async () => {
-		await prisma.$disconnect();
-		console.log("Prisma client disconnected.");
-		process.exit();
-	});
+	// Ensure drizzle closes when the app exits
 });

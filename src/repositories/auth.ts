@@ -1,7 +1,16 @@
 import axios from "axios";
 import { CmuOAuthBasicInfo } from "../../types/CmuOAuthBasicInfo";
-import { prisma } from "../../utils/prisma";
-import { AccountType } from "@prisma/client";
+// import { prisma } from "../../utils/prisma";
+// import { AccountType } from "@prisma/client";
+
+import { dbcontext } from "../../utils/drizzle";
+import {
+	accounttype,
+	roles,
+	userRoles,
+	users,
+} from "../../drizzle/migrations/schema";
+import { eq, sql } from "drizzle-orm";
 
 export async function getOAuthAccessToken(authorizationCode: string) {
 	try {
@@ -46,76 +55,91 @@ export async function getCMUBasicInfo(
 }
 
 export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
-	const existingUser = await prisma.user.findUnique({
-		where: { cmuAccount: cmuBasicInfo.cmuitaccount },
-	});
+	const existingUser = await dbcontext
+		.select()
+		.from(users)
+		.where(eq(users.cmuaccount, cmuBasicInfo.cmuitaccount))
+		.limit(1);
 
-	if (existingUser) {
-		return await prisma.user.update({
-			where: { cmuAccount: cmuBasicInfo.cmuitaccount },
-			data: {
-				cmuAccountName: cmuBasicInfo.cmuitaccount_name,
-				studentId: cmuBasicInfo.student_id,
-				prenameId: cmuBasicInfo.prename_id,
-				prenameTH: cmuBasicInfo.prename_TH,
-				prenameEN: cmuBasicInfo.prename_EN,
-				firstNameTH: cmuBasicInfo.firstname_TH,
-				firstNameEN: cmuBasicInfo.firstname_EN,
-				lastNameTH: cmuBasicInfo.lastname_TH,
-				lastNameEN: cmuBasicInfo.lastname_EN,
-				organizationCode: cmuBasicInfo.organization_code,
-				organizationNameTH: cmuBasicInfo.organization_name_TH,
-				organizationNameEN: cmuBasicInfo.organization_name_EN,
-				it_accountType: cmuBasicInfo.itaccounttype_id,
-				it_accountTypeTH: cmuBasicInfo.itaccounttype_TH,
-				it_accountTypeEN: cmuBasicInfo.itaccounttype_EN,
-			},
-		});
+	if (existingUser.length > 0) {
+		const user = existingUser[0];
+		await dbcontext
+			.update(users)
+			.set({
+				cmuaccountname: cmuBasicInfo.cmuitaccount_name,
+				studentid: cmuBasicInfo.student_id,
+				prenameid: cmuBasicInfo.prename_id,
+				prenameth: cmuBasicInfo.prename_TH,
+				prenameen: cmuBasicInfo.prename_EN,
+				firstnameth: cmuBasicInfo.firstname_TH,
+				firstnameen: cmuBasicInfo.firstname_EN,
+				lastnameth: cmuBasicInfo.lastname_TH,
+				lastnameen: cmuBasicInfo.lastname_EN,
+				organizationcode: cmuBasicInfo.organization_code,
+				organizationnameth: cmuBasicInfo.organization_name_TH,
+				organizationnameen: cmuBasicInfo.organization_name_EN,
+				itAccounttype: cmuBasicInfo.itaccounttype_id,
+				itAccounttypeth: cmuBasicInfo.itaccounttype_TH,
+				itAccounttypeen: cmuBasicInfo.itaccounttype_EN,
+				updatedat: new Date().toISOString(),
+			})
+			.where(eq(users.id, user.id));
+
+		return user;
 	} else {
-		var user = await prisma.user.create({
-			data: {
-				cmuAccount: cmuBasicInfo.cmuitaccount,
-				cmuAccountName: cmuBasicInfo.cmuitaccount_name,
-				studentId: cmuBasicInfo.student_id,
-				prenameId: cmuBasicInfo.prename_id,
-				prenameTH: cmuBasicInfo.prename_TH,
-				prenameEN: cmuBasicInfo.prename_EN,
-				firstNameTH: cmuBasicInfo.firstname_TH,
-				firstNameEN: cmuBasicInfo.firstname_EN,
-				lastNameTH: cmuBasicInfo.lastname_TH,
-				lastNameEN: cmuBasicInfo.lastname_EN,
-				organizationCode: cmuBasicInfo.organization_code,
-				organizationNameTH: cmuBasicInfo.organization_name_TH,
-				organizationNameEN: cmuBasicInfo.organization_name_EN,
-				it_accountType: cmuBasicInfo.itaccounttype_id,
-				it_accountTypeTH: cmuBasicInfo.itaccounttype_TH,
-				it_accountTypeEN: cmuBasicInfo.itaccounttype_EN,
-			},
-		});
-		var roles = await prisma.role.findMany();
-		if (user.it_accountType === AccountType.StdAcc) {
-			// create student role in student_role table
-			const studentRoleId = roles.find((role) => role.name === "Student")?.id;
-			if (studentRoleId !== undefined) {
-				await prisma.userRole.create({
-					data: {
-						userId: user.id,
-						roleId: studentRoleId,
-					},
+		const [newUser] = await dbcontext
+			.insert(users)
+			.values({
+				id: sql`uuid_generate_v4()`,
+				cmuaccount: cmuBasicInfo.cmuitaccount,
+				cmuaccountname: cmuBasicInfo.cmuitaccount_name,
+				studentid: cmuBasicInfo.student_id,
+				prenameid: cmuBasicInfo.prename_id,
+				prenameth: cmuBasicInfo.prename_TH,
+				prenameen: cmuBasicInfo.prename_EN,
+				firstnameth: cmuBasicInfo.firstname_TH,
+				firstnameen: cmuBasicInfo.firstname_EN,
+				lastnameth: cmuBasicInfo.lastname_TH,
+				lastnameen: cmuBasicInfo.lastname_EN,
+				organizationcode: cmuBasicInfo.organization_code,
+				organizationnameth: cmuBasicInfo.organization_name_TH,
+				organizationnameen: cmuBasicInfo.organization_name_EN,
+				itAccounttype: cmuBasicInfo.itaccounttype_id,
+				itAccounttypeth: cmuBasicInfo.itaccounttype_TH,
+				itAccounttypeen: cmuBasicInfo.itaccounttype_EN,
+				createdat: new Date().toISOString(),
+				updatedat: new Date().toISOString(),
+			})
+			.returning();
+
+		const rolesList = await dbcontext.select().from(roles);
+
+		if (cmuBasicInfo.itaccounttype_id === "StdAcc") {
+			const studentRole = rolesList.find((role) => role.name === "student");
+			if (studentRole) {
+				await dbcontext.insert(userRoles).values({
+					userid: newUser.id,
+					roleid: studentRole.id,
 				});
 			}
-		} else if (user.it_accountType === AccountType.MISEmpAcc) {
-			// create teacher role in teacher_role table
-			const teacherRoleId = roles.find((role) => role.name === "Teacher")?.id;
-			if (teacherRoleId !== undefined) {
-				await prisma.userRole.create({
-					data: {
-						userId: user.id,
-						roleId: teacherRoleId,
-					},
+		} else if (cmuBasicInfo.itaccounttype_id === "MISEmpAcc") {
+			const misRole = rolesList.find((role) => role.name === "mis_employee");
+			if (misRole) {
+				await dbcontext.insert(userRoles).values({
+					userid: newUser.id,
+					roleid: misRole.id,
+				});
+			}
+		} else if (cmuBasicInfo.itaccounttype_id === "AlumAcc") {
+			const alumniRole = rolesList.find((role) => role.name === "alumni");
+			if (alumniRole) {
+				await dbcontext.insert(userRoles).values({
+					userid: newUser.id,
+					roleid: alumniRole.id,
 				});
 			}
 		}
-		return user;
+
+		return newUser;
 	}
 }

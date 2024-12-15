@@ -1,0 +1,279 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "cmuaccountname": {
+          "name": "cmuaccountname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cmuaccount": {
+          "name": "cmuaccount",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "studentid": {
+          "name": "studentid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prenameid": {
+          "name": "prenameid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prenameth": {
+          "name": "prenameth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prenameen": {
+          "name": "prenameen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "firstnameth": {
+          "name": "firstnameth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "firstnameen": {
+          "name": "firstnameen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastnameth": {
+          "name": "lastnameth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastnameen": {
+          "name": "lastnameen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organizationcode": {
+          "name": "organizationcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organizationnameth": {
+          "name": "organizationnameth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organizationnameen": {
+          "name": "organizationnameen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "it_accounttype": {
+          "name": "it_accounttype",
+          "type": "accounttype",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "it_accounttypeth": {
+          "name": "it_accounttypeth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "it_accounttypeen": {
+          "name": "it_accounttypeen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdat": {
+          "name": "createdat",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedat": {
+          "name": "updatedat",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_cmuaccount_unique": {
+          "columns": [
+            "cmuaccount"
+          ],
+          "nullsNotDistinct": false,
+          "name": "users_cmuaccount_unique"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.user_roles": {
+      "name": "user_roles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userid": {
+          "name": "userid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "roleid": {
+          "name": "roleid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_roles_userid_fkey": {
+          "name": "user_roles_userid_fkey",
+          "tableFrom": "user_roles",
+          "tableTo": "users",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "userid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_roles_roleid_fkey": {
+          "name": "user_roles_roleid_fkey",
+          "tableFrom": "user_roles",
+          "tableTo": "roles",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "roleid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_roles_userid_roleid_unique": {
+          "columns": [
+            "userid",
+            "roleid"
+          ],
+          "nullsNotDistinct": false,
+          "name": "user_roles_userid_roleid_unique"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.roles": {
+      "name": "roles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "roles_name_key": {
+          "columns": [
+            "name"
+          ],
+          "nullsNotDistinct": false,
+          "name": "roles_name_key"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.accounttype": {
+      "name": "accounttype",
+      "values": [
+        "StdAcc",
+        "AlumAcc",
+        "MISEmpAcc"
+      ],
+      "schema": "public"
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {}
+  }
+}
