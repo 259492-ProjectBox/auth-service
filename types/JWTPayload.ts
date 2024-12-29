@@ -3,4 +3,6 @@ export type JWTPayload = {
 	firstName: string;
 	lastName: string;
 	studentId?: string;
+	orgName?: string;
+	isAdmin: boolean;
 };

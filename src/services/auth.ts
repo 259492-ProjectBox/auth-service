@@ -4,6 +4,7 @@ import {
 	getOAuthAccessToken,
 	saveOrUpdateUser,
 } from "../repositories/auth";
+import { getPermissionsFromCMUAccount } from "../repositories/permission";
 
 export const signIn = async ({ body, set, jwt }: any) => {
 	const { authorizationCode } = body;
@@ -13,7 +14,9 @@ export const signIn = async ({ body, set, jwt }: any) => {
 		return { ok: false, message: "Invalid authorization code" };
 	}
 
+	
 	const accessToken = await getOAuthAccessToken(authorizationCode);
+	
 	if (!accessToken) {
 		set.status = 400;
 		return { ok: false, message: "Cannot get OAuth access token" };
@@ -25,13 +28,17 @@ export const signIn = async ({ body, set, jwt }: any) => {
 		return { ok: false, message: "Cannot get CMU basic info" };
 	}
 
+	
 	const user = await saveOrUpdateUser(cmuBasicInfo);
 
+	const isAdmin = await getPermissionsFromCMUAccount(user.cmuaccount);
 	const payload: JWTPayload = {
-		cmuAccount: user.cmuAccount,
-		firstName: user.firstNameEN,
-		lastName: user.lastNameEN,
-		studentId: user.studentId ?? undefined,
+		cmuAccount: user.cmuaccount,
+		firstName: user.firstnameen,
+		lastName: user.lastnameen,
+		studentId: user.studentid ?? undefined,
+		orgName: user.organizationnameen ?? undefined,
+		isAdmin :isAdmin,
 	};
 
 	const token = await jwt.sign(payload);

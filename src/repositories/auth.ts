@@ -5,7 +5,6 @@ import { CmuOAuthBasicInfo } from "../../types/CmuOAuthBasicInfo";
 
 import { dbcontext } from "../../utils/drizzle";
 import {
-	accounttype,
 	roles,
 	userRoles,
 	users,
@@ -30,6 +29,7 @@ export async function getOAuthAccessToken(authorizationCode: string) {
 				},
 			}
 		);
+		
 		return response.data.access_token;
 	} catch (err) {
 		console.error("Error getting access token:", err); // Log any errors
@@ -55,17 +55,16 @@ export async function getCMUBasicInfo(
 }
 
 export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
-	const existingUser = await dbcontext
-		.select()
-		.from(users)
-		.where(eq(users.cmuaccount, cmuBasicInfo.cmuitaccount))
-		.limit(1);
-
-	if (existingUser.length > 0) {
-		const user = existingUser[0];
+		const existingUser = await dbcontext.query.users.findFirst({
+			where: eq(users.cmuaccount, cmuBasicInfo.cmuitaccount),
+		});
+		
+	if (existingUser) {
 		await dbcontext
 			.update(users)
 			.set({
+				id: existingUser.id,
+				cmuaccount: cmuBasicInfo.cmuitaccount,
 				cmuaccountname: cmuBasicInfo.cmuitaccount_name,
 				studentid: cmuBasicInfo.student_id,
 				prenameid: cmuBasicInfo.prename_id,
@@ -83,9 +82,9 @@ export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
 				itAccounttypeen: cmuBasicInfo.itaccounttype_EN,
 				updatedat: new Date().toISOString(),
 			})
-			.where(eq(users.id, user.id));
+			.where(eq(users.id, existingUser.id));
 
-		return user;
+		return existingUser;
 	} else {
 		const [newUser] = await dbcontext
 			.insert(users)
