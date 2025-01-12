@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS user_roles , users , roles;
+DROP TYPE IF EXISTS AccountType;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Enum for AccountType
 CREATE TYPE AccountType AS ENUM ('StdAcc', 'AlumAcc', 'MISEmpAcc');
@@ -44,4 +46,20 @@ CREATE TABLE user_roles (
 );
 
 
-INSERT INTO roles (name, description) VALUES ('admin', 'Admin role' ), ('student' , 'Student role' ), ('alumni' , 'Alumni role' ), ('mis_employee' , 'MIS Employee role' );
+INSERT INTO roles (name, description) VALUES ('admin', 'Admin role' ), ('student' , 'Student role' ), ('alumni' , 'Alumni role' ), ('mis_employee' , 'MIS Employee role' ) , ('platform_admin' , 'Platform Admin role' );
+
+
+CREATE TABLE "program" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	CONSTRAINT "program_name_key" UNIQUE("name")
+);
+--> statement-breakpoint
+ALTER TABLE "user_roles" ADD COLUMN "programid" integer NOT NULL;--> statement-breakpoint
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_programid_fkey" FOREIGN KEY ("programid") REFERENCES "public"."program"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "user_roles" ALTER COLUMN "programid" DROP NOT NULL;
+ALTER TABLE "program" ADD COLUMN "description" text;
+
+
+INSERT INTO "program" ("name" , "description") VALUES ('ME' , 'เครื่องกล'), ('IE' ,'อุตสาหการ'), ('EE', 'ไฟฟ้า'), ('CE' ,'โยธา'), ('ENVI' , 'สิ่งแวดล้อม'), ('CPE' , 'คอมพิวเตอร์'), ('REAI' , 'หุ่นยนต์และปัญญาประดิษฐ์'), ('ISNE', 'สาระสนเทศเเละเครือข่าย')

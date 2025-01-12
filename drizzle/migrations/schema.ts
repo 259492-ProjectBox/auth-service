@@ -32,6 +32,7 @@ export const userRoles = pgTable("user_roles", {
 	id: serial().primaryKey().notNull(),
 	userid: uuid().notNull(),
 	roleid: integer().notNull(),
+	programid: integer(),
 }, (table) => [
 	foreignKey({
 			columns: [table.userid],
@@ -43,6 +44,11 @@ export const userRoles = pgTable("user_roles", {
 			foreignColumns: [roles.id],
 			name: "user_roles_roleid_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.programid],
+			foreignColumns: [program.id],
+			name: "user_roles_programid_fkey"
+		}).onDelete("cascade"),
 	unique("user_roles_userid_roleid_unique").on(table.userid, table.roleid),
 ]);
 
@@ -52,4 +58,12 @@ export const roles = pgTable("roles", {
 	description: text(),
 }, (table) => [
 	unique("roles_name_key").on(table.name),
+]);
+
+export const program = pgTable("program", {
+	id: serial().primaryKey().notNull(),
+	name: text().notNull(),
+	description: text(),
+}, (table) => [
+	unique("program_name_key").on(table.name),
 ]);
