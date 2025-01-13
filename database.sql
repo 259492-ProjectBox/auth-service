@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS user_roles , users , roles;
+DROP TABLE IF EXISTS user_roles , users , roles , program;
 DROP TYPE IF EXISTS AccountType;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Enum for AccountType

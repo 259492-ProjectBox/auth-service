@@ -1,6 +1,6 @@
 import { dbcontext } from "../../utils/drizzle";
 import { eq, and } from "drizzle-orm";
-import {  userRoles, users } from "../../drizzle/migrations/schema";
+import { userRoles, users } from "../../drizzle/migrations/schema";
 
 export async function checkIsPlatformAdminByUserId(userId: string): Promise<boolean> {
 	// Query the user_roles table to check if the user has roleId = 1
@@ -67,42 +67,55 @@ export async function checkIsAdminByCMUAccount(cmuAccount: string): Promise<bool
 
 /**
  * Create a new permission for a user.
- * @param userId The ID of the user to create the permission for.
+ * @param userAccount The ID of the user to create the permission for.
  * @param programId The ID of the program to create the permission for.
  * @param roleId The ID of the role to create the permission for.
  * @returns True if the permission is created successfully or already have that role, otherwise false.
  */
 export async function createUserRole(
-	userId: string,
+	userAccount: string,
 	programId: number,
 	roleId: number
 ): Promise<boolean> {
+	try {
+		// Find the user in the users table
+		const user = await dbcontext.query.users.findFirst({
+			where: eq(users.cmuaccount, userAccount),
+		});
+		if (!user) {
+			return false;
+		}
 
-	const existingRole = await dbcontext.query.userRoles.findFirst({
-		where: and(
-			eq(userRoles.userid, userId), // userRoles.userid should be used here
-			eq(userRoles.roleid, roleId), // userRoles.roleid should be used here
-			eq(userRoles.programid, programId) // userRoles.programid should be used here
-		),
-	});
+		// Check if the user already has the specified role for the given program
+		const existingRole = await dbcontext.query.userRoles.findFirst({
+			where: and(
+				eq(userRoles.userid, user.id),
+				eq(userRoles.roleid, roleId),
+				eq(userRoles.programid, programId)
+			),
+		});
 
-	
-	if (existingRole != null) {
-		return true;
+		// If the role already exists, return true
+		if (existingRole) {
+			return true;
+		}
+
+		// Insert a new role for the user
+		const newPermission = await dbcontext
+			.insert(userRoles)
+			.values({
+				userid: user.id,
+				roleid: roleId,
+				programid: programId,
+			})
+			.returning();
+
+		// Return true if the permission is created successfully
+		return newPermission.length > 0;
+	} catch (error) {
+		// Log the error and return false
+		console.error('Error creating user role:', error);
+		return false;
 	}
-
-	// Insert a new role for the user
-	const newPermission = await dbcontext
-		.insert(userRoles)
-		.values({
-			userid: userId,
-			roleid: roleId,
-			programid: programId,
-
-		})
-		.returning();
-
-	// Return true if the permission is created successfully
-	return newPermission.length > 0;
 }
 

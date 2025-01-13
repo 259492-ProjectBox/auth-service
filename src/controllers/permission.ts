@@ -59,17 +59,17 @@ export const permissionController = (app: Elysia) => {
 	app.post(
 		"/api/createAdmin",
 		async (context) => {
-			const { userId, adminAccount, programId } = context.body;
+			const { userAccount, adminAccount, programId } = context.body;
 			
 			// Use the service to create admin
-			const permissionResponse = await createAdmin(userId, adminAccount, programId);
+			const permissionResponse = await createAdmin(userAccount, adminAccount, programId);
 
 			// Return the response to the client
 			return permissionResponse;
 		},
 		{
 			body: t.Object({
-				userId: t.String(), // Validate input
+				userAccount: t.String(), // Validate input
 				adminAccount: t.String(), // Validate input
 				programId: t.Number(), // Validate input
 			}),

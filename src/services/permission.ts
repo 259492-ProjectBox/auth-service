@@ -29,13 +29,13 @@ export async function checkUserPermissionFromUserAccount(cmuAccount:string): Pro
 }
 /**
  * Create a new permission for a user.
- * @param userId The ID of the user to create the permission for.
+ * @param userAccount The userAccount of the user to create the permission for.
  * @param adminAccount The adminAccount of the user to create the permission for.
  * @param programId The ID of the program to create the permission for.
  * @returns True if the permission is created successfully or already have that role, otherwise false.
  */
 export async function createAdmin(
-	userId: string,
+	userAccount: string,
 	adminAccount: string,
 	programId: number,
 ): Promise<PermissionResponse> {
@@ -48,7 +48,7 @@ export async function createAdmin(
 		}
 	}
 
-	const newAdmin = await createUserRole(userId, programId, 1);
+	const newAdmin = await createUserRole(userAccount, programId, 1);
 	if (newAdmin) {
 		return {
 			ok: true,
