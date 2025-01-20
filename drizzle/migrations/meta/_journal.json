@@ -8,6 +8,27 @@
       "when": 1734245513126,
       "tag": "0000_unknown_wonder_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1736665423777,
+      "tag": "0001_powerful_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1736665578414,
+      "tag": "0002_same_chameleon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1736666094016,
+      "tag": "0003_curved_toro",
+      "breakpoints": true
     }
   ]
 }

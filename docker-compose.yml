@@ -30,10 +30,10 @@ services:
       - auth_network
 
   auth_service:
-    image: authservice:1.0
+    image: kunmhing/authservice:1.1
     container_name: auth_service
     environment:
-      - DATABASE_URL=postgres://user:pass@auth_db:5432/auth_db
+      - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - CMU_OAUTH_CLIENT_ID=${CMU_OAUTH_CLIENT_ID}
       - CMU_OAUTH_CLIENT_SECRET=${CMU_OAUTH_CLIENT_SECRET}
@@ -46,9 +46,9 @@ services:
       - auth_network
 volumes:
   auth_db:
-    external: false
+    # external: false
   auth_pg_admin:
-    external: false
+    # external: false
 
 networks:
   auth_network:

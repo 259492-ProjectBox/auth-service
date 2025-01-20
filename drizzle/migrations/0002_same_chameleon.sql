@@ -1,0 +1,1 @@
+ALTER TABLE "user_roles" ALTER COLUMN "programid" DROP NOT NULL;

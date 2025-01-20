@@ -4,7 +4,7 @@ import {
 	getOAuthAccessToken,
 	saveOrUpdateUser,
 } from "../repositories/auth";
-import { getPermissionsFromCMUAccount } from "../repositories/permission";
+import { checkIsAdminByCMUAccount } from "../repositories/permission";
 
 export const signIn = async ({ body, set, jwt }: any) => {
 	const { authorizationCode } = body;
@@ -31,7 +31,7 @@ export const signIn = async ({ body, set, jwt }: any) => {
 	
 	const user = await saveOrUpdateUser(cmuBasicInfo);
 
-	const isAdmin = await getPermissionsFromCMUAccount(user.cmuaccount);
+	const isAdmin = await checkIsAdminByCMUAccount(user.cmuaccount);
 	const payload: JWTPayload = {
 		cmuAccount: user.cmuaccount,
 		firstName: user.firstnameen,

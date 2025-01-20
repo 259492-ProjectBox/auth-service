@@ -67,3 +67,36 @@ bun add drizzle-orm postgres
 bun add -d drizzle-kit
 
 ```
+
+
+When create user in vm and use ssh but when try to access by that user account then got 
+` Permission denied (publickey).`
+- 1. Let check if that user already have ssh key in that user go to user folder by root
+    for example /home/{non_root_user}/.ssh and check in authorized_key
+
+- 2. If already has authorized_key then
+```
+Sometimes the issue comes from permissions and ownership. For instance, if you want to log in as root, /root, .ssh and authorized_keys must belong to root. Otherwise, sshd won't be able to read them and therefore won't be able to tell if the user is authorized to log in.
+
+In your home directory:
+/home/{non_root_user}/
+chown -R your_user:your_user .ssh
+
+As for rights, go with 700 for .ssh and 600 for authorized_keys
+
+chmod 700 .ssh
+chmod 600 .ssh/authorized_keys
+
+
+```
+
+if you dont want to use sudo everytime with every command use 
+`sudo -s`
+or Own the directory you want by using chown:
+`sudo chown your_username directory `
+
+Add the User to the Docker Group
+Run the following command to add kunmhing to the docker group:
+```
+sudo usermod -aG docker kunmhing
+```
