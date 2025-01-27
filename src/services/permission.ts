@@ -29,7 +29,8 @@ export async function checkUserPermissionFromUserAccount(cmuAccount:string): Pro
 }
 export async function createAdmin(
 	userId: string,
-	permission: string
+	permission: string,
+	programId : number
 ): Promise<PermissionResponse> {
 	// Create permission
 

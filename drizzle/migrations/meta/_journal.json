@@ -8,6 +8,13 @@
       "when": 1734245513126,
       "tag": "0000_unknown_wonder_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1737949285703,
+      "tag": "0001_add_new_program",
+      "breakpoints": true
     }
   ]
 }

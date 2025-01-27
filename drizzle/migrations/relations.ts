@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, userRoles, roles } from "./schema";
+import { users, userRoles, roles, programs } from "./schema";
 
 export const userRolesRelations = relations(userRoles, ({one}) => ({
 	user: one(users, {
@@ -10,6 +10,10 @@ export const userRolesRelations = relations(userRoles, ({one}) => ({
 		fields: [userRoles.roleid],
 		references: [roles.id]
 	}),
+	program: one(programs, {
+		fields: [userRoles.programs_id],
+		references: [programs.id]
+	}),
 }));
 
 export const usersRelations = relations(users, ({many}) => ({
@@ -17,5 +21,9 @@ export const usersRelations = relations(users, ({many}) => ({
 }));
 
 export const rolesRelations = relations(roles, ({many}) => ({
+	userRoles: many(userRoles),
+}));
+
+export const programRelations = relations(programs, ({many}) => ({
 	userRoles: many(userRoles),
 }));

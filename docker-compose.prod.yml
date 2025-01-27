@@ -28,6 +28,22 @@ services:
       - auth_pg_admin:/var/lib/pgadmin
     networks:
       - auth_network
+
+  auth_service:
+    image: kunmhing/authservice:latest
+    container_name: auth_service
+    environment:
+      - DATABASE_URL=postgres://user:pass@auth_db:5432/auth_db
+      - JWT_SECRET=${JWT_SECRET}
+      - CMU_OAUTH_CLIENT_ID=${CMU_OAUTH_CLIENT_ID}
+      - CMU_OAUTH_CLIENT_SECRET=${CMU_OAUTH_CLIENT_SECRET}
+      - CMU_OAUTH_GET_TOKEN_URL=${CMU_OAUTH_GET_TOKEN_URL}
+      - CMU_OAUTH_GET_BASIC_INFO=${CMU_OAUTH_GET_BASIC_INFO}
+      - CMU_OAUTH_REDIRECT_URL=${CMU_OAUTH_REDIRECT_URL}
+    ports:
+      - 3002:3002
+    networks:
+      - auth_network
 volumes:
   auth_db:
     external: false
