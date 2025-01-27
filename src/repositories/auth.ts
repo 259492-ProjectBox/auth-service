@@ -1,7 +1,5 @@
 import axios from "axios";
-import { CmuOAuthBasicInfo } from "../../types/CmuOAuthBasicInfo";
-// import { prisma } from "../../utils/prisma";
-// import { AccountType } from "@prisma/client";
+
 
 import { dbcontext } from "../../utils/drizzle";
 import {
@@ -10,51 +8,57 @@ import {
 	users,
 } from "../../drizzle/migrations/schema";
 import { eq, sql } from "drizzle-orm";
+import { CmuEntraIDBasicInfo } from "../../types/CmuEntraIDBasicInfo";
 
-export async function getOAuthAccessToken(authorizationCode: string) {
+export async function getEmtraIDAccessTokenAsync(
+	authorizationCode: string
+  ): Promise<string | null> {
 	try {
-		const response = await axios.post(
-			process.env.CMU_OAUTH_GET_TOKEN_URL as string,
-			{},
-			{
-				params: {
-					code: authorizationCode,
-					redirect_uri: process.env.CMU_OAUTH_REDIRECT_URL,
-					client_id: process.env.CMU_OAUTH_CLIENT_ID,
-					client_secret: process.env.CMU_OAUTH_CLIENT_SECRET,
-					grant_type: "authorization_code",
-				},
-				headers: {
-					"content-type": "application/x-www-form-urlencoded",
-				},
-			}
-		);
-		
-		return response.data.access_token;
-	} catch (err) {
-		console.error("Error getting access token:", err); // Log any errors
-		return null;
+	  const tokenUrl = process.env.CMU_ENTRAID_GET_TOKEN_URL as string;
+	  const redirectUrl = process.env.CMU_ENTRAID_REDIRECT_URL as string;
+	  const clientId = process.env.CMU_ENTRAID_CLIENT_ID as string;
+	  const clientSecret = process.env.CMU_ENTRAID_CLIENT_SECRET as string;
+	  const scope = process.env.SCOPE as string;
+  
+	  const response = await axios.post(
+		tokenUrl,
+		{
+		  code: authorizationCode,
+		  redirect_uri: redirectUrl,
+		  client_id: clientId,
+		  client_secret: clientSecret,
+		  scope: scope,
+		  grant_type: "authorization_code",
+		},
+		{
+		  headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		  }
+		}
+	  ); 
+  
+	  return response.data.access_token;    
+	} catch (error) {
+	  return null;
 	}
-}
+  }
 
-export async function getCMUBasicInfo(
-	accessToken: string
-): Promise<CmuOAuthBasicInfo | null> {
+export async function getCMUBasicInfoAsync(accessToken: string) {
 	try {
-		const response = await axios.get(
-			process.env.CMU_OAUTH_GET_BASIC_INFO as string,
-			{
-				headers: { Authorization: `Bearer ${accessToken}` },
-			}
-		);
-		return response.data as CmuOAuthBasicInfo;
+	  const besicinfoUrl = process.env.CMU_ENTRAID_GET_BASIC_INFO as string;
+	  const response = await axios.get(
+		besicinfoUrl,
+		{
+		  headers: { Authorization: "Bearer " + accessToken },
+		}
+	  );
+	  return response.data as CmuEntraIDBasicInfo;
 	} catch (err) {
-		console.error("Error getting CMU basic info:", err);
-		return null;
+	  return null;
 	}
-}
+  }
 
-export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
+export async function saveOrUpdateUser(cmuBasicInfo: CmuEntraIDBasicInfo) {
 		const existingUser = await dbcontext.query.users.findFirst({
 			where: eq(users.cmuaccount, cmuBasicInfo.cmuitaccount),
 		});
@@ -81,6 +85,7 @@ export async function saveOrUpdateUser(cmuBasicInfo: CmuOAuthBasicInfo) {
 				itAccounttypeth: cmuBasicInfo.itaccounttype_TH,
 				itAccounttypeen: cmuBasicInfo.itaccounttype_EN,
 				updatedat: new Date().toISOString(),
+				isactive: true,
 			})
 			.where(eq(users.id, existingUser.id));
 

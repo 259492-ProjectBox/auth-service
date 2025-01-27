@@ -1,1 +1,0 @@
-ALTER TABLE "program" ADD COLUMN "description" text;

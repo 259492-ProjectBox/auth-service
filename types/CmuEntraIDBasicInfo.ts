@@ -1,6 +1,6 @@
 import { AccountType } from "./AccountType";
 
-export type CmuOAuthBasicInfo = {
+export type CmuEntraIDBasicInfo = {
 	cmuitaccount_name: string;
 	cmuitaccount: string;
 	student_id?: string;
@@ -17,4 +17,5 @@ export type CmuOAuthBasicInfo = {
 	itaccounttype_id: AccountType;
 	itaccounttype_TH: string;
 	itaccounttype_EN: string;
-};
+  };
+  

@@ -1,10 +1,10 @@
 import { JWTPayload } from "../../types/JWTPayload";
 import {
-	getCMUBasicInfo,
-	getOAuthAccessToken,
+	getCMUBasicInfoAsync,
+	getEmtraIDAccessTokenAsync,
+	
 	saveOrUpdateUser,
 } from "../repositories/auth";
-import { checkIsAdminByCMUAccount } from "../repositories/permission";
 
 export const signIn = async ({ body, set, jwt }: any) => {
 	const { authorizationCode } = body;
@@ -15,32 +15,47 @@ export const signIn = async ({ body, set, jwt }: any) => {
 	}
 
 	
-	const accessToken = await getOAuthAccessToken(authorizationCode);
+	
+	const accessToken = await getEmtraIDAccessTokenAsync(authorizationCode);
 	
 	if (!accessToken) {
 		set.status = 400;
-		return { ok: false, message: "Cannot get OAuth access token" };
+		return { ok: false, message: "Cannot get Entra access token" };
 	}
 
-	const cmuBasicInfo = await getCMUBasicInfo(accessToken);
+	const cmuBasicInfo = await getCMUBasicInfoAsync(accessToken);
 	if (!cmuBasicInfo) {
 		set.status = 400;
 		return { ok: false, message: "Cannot get CMU basic info" };
 	}
 
 	
+	
 	const user = await saveOrUpdateUser(cmuBasicInfo);
 
-	const isAdmin = await checkIsAdminByCMUAccount(user.cmuaccount);
+	// const isAdmin = await checkIsPlatformAdminByCMUAccount(user.cmuaccount);
 	const payload: JWTPayload = {
 		cmuAccount: user.cmuaccount,
 		firstName: user.firstnameen,
 		lastName: user.lastnameen,
 		studentId: user.studentid ?? undefined,
-		orgName: user.organizationnameen ?? undefined,
-		isAdmin :isAdmin,
+		roles: ["admin"],
+		isPlatformAdmin: true,
+		isAdmin: [1],
+
+		// orgName: user.organizationnameen ?? undefined,
+		// isAdmin :isAdmin,
 	};
 
+	// const payload: JWTPayload = {
+	// 	cmuAccount: cmuBasicInfo.cmuitaccount,
+	// 	firstName: cmuBasicInfo.cmuitaccount_name,
+	// 	lastName: cmuBasicInfo.cmuitaccount_name,
+	// 	studentId: cmuBasicInfo.student_id ?? undefined,
+	// 	isAdmin: [1],
+	// 	roles: ["admin"],
+	// 	isPlatformAdmin: true,
+	// };
 	const token = await jwt.sign(payload);
 
 	if (!token) {

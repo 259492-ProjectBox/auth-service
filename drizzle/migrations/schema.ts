@@ -1,4 +1,4 @@
-import { pgTable, unique, uuid, text, timestamp, foreignKey, serial, integer, pgEnum ,boolean} from "drizzle-orm/pg-core"
+import { pgTable, unique, uuid, text, boolean, timestamp, foreignKey, serial, integer, varchar, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const accounttype = pgEnum("accounttype", ['StdAcc', 'AlumAcc', 'MISEmpAcc'])
@@ -22,21 +22,21 @@ export const users = pgTable("users", {
 	itAccounttype: accounttype("it_accounttype").notNull(),
 	itAccounttypeth: text("it_accounttypeth").notNull(),
 	itAccounttypeen: text("it_accounttypeen").notNull(),
+	isactive: boolean().default(true).notNull(),
 	createdat: timestamp({ mode: 'string' }).defaultNow().notNull(),
 	updatedat: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	isActive: boolean().default(true).notNull(),
 }, (table) => [
-	unique("users_cmuaccount_unique").on(table.cmuaccount),
+	unique("users_cmuaccount_key").on(table.cmuaccount),
 ]);
 
 export const userRoles = pgTable("user_roles", {
 	id: serial().primaryKey().notNull(),
 	userid: uuid().notNull(),
 	roleid: integer().notNull(),
-	programs_id: integer().notNull(),
-	createDate : timestamp({ mode: 'string' }).defaultNow().notNull(),
-	updateDate : timestamp({ mode: 'string' }).defaultNow().notNull(),
-	createBy : text().notNull(),
+	programsId: integer("programs_id"),
+	createdate: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedate: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	createby: varchar({ length: 255 }),
 }, (table) => [
 	foreignKey({
 			columns: [table.userid],
@@ -49,22 +49,16 @@ export const userRoles = pgTable("user_roles", {
 			name: "user_roles_roleid_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
-			columns: [table.programid],
-			foreignColumns: [program.id],
-			name: "user_roles_programid_fkey"
+			columns: [table.programsId],
+			foreignColumns: [programs.id],
+			name: "user_roles_programs_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.createby],
+			foreignColumns: [users.cmuaccount],
+			name: "user_roles_createby_fkey"
 		}).onDelete("cascade"),
 	unique("user_roles_userid_roleid_unique").on(table.userid, table.roleid),
-	foreignKey({
-		columns: [table.programs_id],
-		foreignColumns: [programs.id],
-		name: "user_roles_programs_id_fkey"
-	}).onDelete("cascade"),
-	// create foreign key for createBy from user
-	foreignKey({
-		columns: [table.createBy],
-		foreignColumns: [users.id],
-		name: "user_roles_createBy_fkey"
-	}).onDelete("cascade"),
 ]);
 
 export const roles = pgTable("roles", {
@@ -77,13 +71,10 @@ export const roles = pgTable("roles", {
 
 export const programs = pgTable("programs", {
 	id: serial().primaryKey().notNull(),
-	program_name_th : text().notNull(),
-	program_name_en : text().notNull(),
+	programNameTh: text("program_name_th").notNull(),
+	programNameEn: text("program_name_en").notNull(),
 	abbreviation: text().notNull(),
-	// name: text().notNull(),
-	// description: text(),
 }, (table) => [
-	unique("program_name_th_key").on(table.program_name_th),
-	unique("program_name_en_key").on(table.program_name_en),
-
+	unique("program_name_th_key").on(table.programNameTh),
+	unique("program_name_en_key").on(table.programNameEn),
 ]);

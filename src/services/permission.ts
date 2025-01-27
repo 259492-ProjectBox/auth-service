@@ -1,4 +1,4 @@
-import { checkIsAdminByCMUAccount, checkIsAdminByUserId, checkIsPlatformAdminByCMUAccount, checkIsPlatformAdminByUserId, createUserRole } from "../repositories/permission";
+import { checkIsAdminByCMUAccount, checkIsAdminByUserId, checkIsPlatformAdminByCMUAccount, checkIsPlatformAdminByUserId } from "../repositories/permission";
 
 interface PermissionResponse {
 	ok: boolean;
@@ -48,13 +48,13 @@ export async function createAdmin(
 		}
 	}
 
-	const newAdmin = await createUserRole(userId, programId, 1);
-	if (newAdmin) {
-		return {
-			ok: true,
-			message: "Admin created successfully",
-		}
-	}
+	// const newAdmin = await createUserRole(userId, programId, 1);
+	// if (newAdmin) {
+	// 	return {
+	// 		ok: true,
+	// 		message: "Admin created successfully",
+	// 	}
+	// }
 	return {
 		ok: false,
 		message: "Admin already exists",
