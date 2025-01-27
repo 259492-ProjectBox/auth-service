@@ -1,7 +1,27 @@
 import Elysia, { t } from "elysia";
 import { checkUserPermissionFromUserAccount, checkUserPermissionFromUserID, createAdmin } from "../services/permission";
+import { checkUserPermissionFromUserAccount, checkUserPermissionFromUserID, createAdmin } from "../services/permission";
 
 export const permissionController = (app: Elysia) => {
+	// app.post(
+	// 	"/api/getPermission",
+	// 	async (context) => {
+	// 		const { userId } = context.body;
+
+	// 		// Use the service to check permissions
+	// 		const permissionResponse = await checkUserPermissionFromUserID(userId);
+
+	// 		// Return the response to the client
+	// 		return permissionResponse;
+	// 	},
+	// 	{
+	// 		body: t.Object({
+	// 			userId: t.String(), // Validate input
+	// 		}),
+	// 	}
+	// );
+	app.get(
+		"/api/checkIsAdminByUserID/:userId", // Define a parameterized route
 	// app.post(
 	// 	"/api/getPermission",
 	// 	async (context) => {
@@ -25,8 +45,12 @@ export const permissionController = (app: Elysia) => {
 			// Extract userId from the params
 			const { userId } = context.params;
 	
+			// Extract userId from the params
+			const { userId } = context.params;
+	
 			// Use the service to check permissions
 			const permissionResponse = await checkUserPermissionFromUserID(userId);
+	
 	
 			// Return the response to the client
 			return permissionResponse;
@@ -34,14 +58,19 @@ export const permissionController = (app: Elysia) => {
 		{
 			params: t.Object({
 				userId: t.String(), // Validate userId in params
+			params: t.Object({
+				userId: t.String(), // Validate userId in params
 			}),
 		}
 	);
 	
+	
 	app.post(
+		"/api/checkIsAdminByCMUAccount",
 		"/api/checkIsAdminByCMUAccount",
 		async (context) => {
 			const { cmuAccount } = context.body;
+			
 			
 			// Use the service to check permissions
 			const permissionResponse = await checkUserPermissionFromUserAccount(cmuAccount);

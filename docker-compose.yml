@@ -30,9 +30,9 @@ services:
       - auth_network
 volumes:
   auth_db:
-    external: false
+    # external: false
   auth_pg_admin:
-    external: false
+    # external: false
 
 networks:
   auth_network:
