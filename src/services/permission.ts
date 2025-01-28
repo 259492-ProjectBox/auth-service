@@ -1,11 +1,12 @@
-import { checkIsAdminByCMUAccount, checkIsAdminByUserId, checkIsPlatformAdminByCMUAccount, checkIsPlatformAdminByUserId } from "../repositories/permission";
+import {  checkIsAdminByUserId, checkIsPlatformAdminByCMUAccount, getProgramIdOfUser } from "../repositories/permission";
+import { getUserIDByCMUAccount } from "../repositories/users";
 
 interface PermissionResponse {
 	ok: boolean;
 	message: string;
 }
 
-export async function checkUserPermissionFromUserID(
+export async function checkIsAdmin(
 	userId: string
 ): Promise<PermissionResponse> {
 	const hasPermission = await checkIsAdminByUserId(userId);
@@ -18,15 +19,13 @@ export async function checkUserPermissionFromUserID(
 	};
 }
 
-export async function checkUserPermissionFromUserAccount(cmuAccount:string): Promise<PermissionResponse> {
-	const hasPermission = await checkIsAdminByCMUAccount(cmuAccount);
-	return {
-		ok: hasPermission,
-		message: hasPermission
-			? "Permission granted"
-			: "User does not have permission",
-	}
-}
+// get program from getProgramIdOfUser using cmu account
+export const getProgramIdOfAdminFromCmuaccount = async (cmuAccount: string) :Promise<number[] | null> => {
+	const userId = await getUserIDByCMUAccount(cmuAccount);
+	const programIds = await getProgramIdOfUser(userId);
+	return programIds.map(program => program.programId).filter(id => id !== null) as number[];
+};
+
 /**
  * Create a new permission for a user.
  * @param userId The ID of the user to create the permission for.

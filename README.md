@@ -100,3 +100,7 @@ Run the following command to add kunmhing to the docker group:
 ```
 sudo usermod -aG docker kunmhing
 ```
+
+# Testing
+Unit testing 
+`bun add --save-dev @types/sinon`

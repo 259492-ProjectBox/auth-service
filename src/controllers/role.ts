@@ -7,5 +7,9 @@ export async function roleController(app: Elysia) {
 	app.get("/api/roles", async () => {
 		const roles = await getAllRoles();
 		return roles;
+	},{
+		detail: {
+		tags: ["Role"],
+		}
 	});
 }

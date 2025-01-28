@@ -5,6 +5,8 @@ import {
 	
 	saveOrUpdateUser,
 } from "../repositories/auth";
+import { checkIsAdminByUserId, getRoleOfUser } from "../repositories/permission";
+import { getProgramIdOfAdminFromCmuaccount } from "./permission";
 
 export const signIn = async ({ body, set, jwt }: any) => {
 	const { authorizationCode } = body;
@@ -34,17 +36,18 @@ export const signIn = async ({ body, set, jwt }: any) => {
 	const user = await saveOrUpdateUser(cmuBasicInfo);
 
 	// const isAdmin = await checkIsPlatformAdminByCMUAccount(user.cmuaccount);
+	const roles = await getRoleOfUser(user.id);
+	const isPlatformAdmin = await checkIsAdminByUserId(user.id);
+	const isAdmin = await getProgramIdOfAdminFromCmuaccount(user.cmuaccount);
 	const payload: JWTPayload = {
 		cmuAccount: user.cmuaccount,
 		firstName: user.firstnameen,
 		lastName: user.lastnameen,
 		studentId: user.studentid ?? undefined,
-		roles: ["admin"],
-		isPlatformAdmin: true,
-		isAdmin: [1],
+		roles: roles.map((role) => role.roleName),
+		isPlatformAdmin: isPlatformAdmin,
+		isAdmin: isAdmin?.map((admin) => admin) ?? [],
 
-		// orgName: user.organizationnameen ?? undefined,
-		// isAdmin :isAdmin,
 	};
 
 	// const payload: JWTPayload = {

@@ -1,6 +1,6 @@
 import { dbcontext } from "../../utils/drizzle";
 import { eq, and } from "drizzle-orm";
-import {  userRoles, users } from "../../drizzle/migrations/schema";
+import {  roles, userRoles, users } from "../../drizzle/migrations/schema";
 
 
 
@@ -47,32 +47,30 @@ export async function checkIsAdminByUserId(userId: string): Promise<boolean> {
 	return role;
 }
 
-// export async function checkIsAdminByCMUAccount(cmuAccount: string): Promise<boolean> {
-// 		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 1))).then((data) => data?.length > 0);
+export const getRoleOfUser = async (userId: string) => {
+    const role = await dbcontext
+        .select({
+            roleName: roles.name
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleid, roles.id))
+        .where(eq(userRoles.userid, userId))
+        .orderBy(userRoles.id)
+        .then((data) => data);
+    return role;
+};
 
-// 	return role;
-// }
-
-export async function checkIsAdminByCMUAccount(cmuAccount: string): Promise<boolean> {
-	// check if user is exits
-	const user = await dbcontext.query.users.findFirst({
-		where: eq(users.cmuaccount, cmuAccount),
-	});
-	
-	
-	if (!user) {
-		return false;
-	}
-	// Query the user_roles table to check if the user has roleId = 1
-	const role = await dbcontext
-		.select()
+// create function that will get program id that user have role id = 1
+export const getProgramIdOfUser = async (userId: string) => {
+	const programId = await dbcontext
+		.select({
+			programId: userRoles.programsId
+		})
 		.from(userRoles)
-		.where(and(eq(userRoles.userid, user.id), eq(userRoles.roleid, 1))).then((data) => data?.length > 0);
-
-	return role;
-	
-}
-
+		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 1)))
+		.then((data) => data);
+	return programId;
+};
 
 
 /**
