@@ -1,16 +1,20 @@
 import { dbcontext } from "../../utils/drizzle";
 import { eq, and } from "drizzle-orm";
 import {  roles, userRoles, users } from "../../drizzle/migrations/schema";
+import { RoleOfUser } from "../../types/Role";
 
 
 
 export async function checkIsPlatformAdminByUserId(userId: string): Promise<boolean> {
-	// Query the user_roles table to check if the user has roleId = 1
 	const role = await dbcontext
 		.select()
 		.from(userRoles)
-		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 5))).then((data) => data?.length > 0);
+		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, RoleOfUser.PlatformAdmin))).then((data) => data?.length > 0);
 
+		const rT = await dbcontext.select().from(userRoles).where(eq(userRoles.userid, userId)).then((data) => data);
+		console.log(userId);
+		
+		
 	return role;
 }
 
@@ -23,11 +27,10 @@ export async function checkIsPlatformAdminByCMUAccount(cmuAccount: string): Prom
 	if (!user) {
 		return false;
 	}
-	// Query the user_roles table to check if the user has roleId = 1
 	const role = await dbcontext
 		.select()
 		.from(userRoles)
-		.where(and(eq(userRoles.userid, user.id), eq(userRoles.roleid, 5))).then((data) => data?.length > 0);
+		.where(and(eq(userRoles.userid, user.id), eq(userRoles.roleid, RoleOfUser.PlatformAdmin))).then((data) => data?.length > 0);
 
 	return role;
 	
@@ -38,11 +41,10 @@ export async function checkIsPlatformAdminByCMUAccount(cmuAccount: string): Prom
  * @returns True if the user has the required role, otherwise false.
  */
 export async function checkIsAdminByUserId(userId: string): Promise<boolean> {
-	// Query the user_roles table to check if the user has roleId = 1
 	const role = await dbcontext
 		.select()
 		.from(userRoles)
-		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, 1))).then((data) => data?.length > 0);
+		.where(and(eq(userRoles.userid, userId), eq(userRoles.roleid,RoleOfUser.Admin))).then((data) => data?.length > 0);
 
 	return role;
 }
@@ -60,7 +62,6 @@ export const getRoleOfUser = async (userId: string) => {
     return role;
 };
 
-// create function that will get program id that user have role id = 1
 export const getProgramIdOfUser = async (userId: string) => {
 	const programId = await dbcontext
 		.select({

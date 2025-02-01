@@ -5,7 +5,7 @@ import {
 	
 	saveOrUpdateUser,
 } from "../repositories/auth";
-import {  checkIsPlatformAdminByCMUAccount, getRoleOfUser } from "../repositories/permission";
+import {   checkIsPlatformAdminByUserId, getRoleOfUser } from "../repositories/permission";
 import { getProgramIdOfAdminFromCmuaccount } from "./permission";
 
 export const signIn = async ({ body, set, jwt }: any) => {
@@ -35,9 +35,10 @@ export const signIn = async ({ body, set, jwt }: any) => {
 	
 	const user = await saveOrUpdateUser(cmuBasicInfo);
 
-	// const isAdmin = await checkIsPlatformAdminByCMUAccount(user.cmuaccount);
 	const roles = await getRoleOfUser(user.id);
-	const isPlatformAdmin = await checkIsPlatformAdminByCMUAccount(user.id);
+	const isPlatformAdmin = await checkIsPlatformAdminByUserId(user.id);
+	console.log(isPlatformAdmin);
+	
 	const isAdmin = await getProgramIdOfAdminFromCmuaccount(user.cmuaccount);
 	const payload: JWTPayload = {
 		cmuAccount: user.cmuaccount,
@@ -59,3 +60,4 @@ export const signIn = async ({ body, set, jwt }: any) => {
 
 	return { ok: true, accessToken: token };
 };
+

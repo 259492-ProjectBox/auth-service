@@ -5,12 +5,14 @@ import { roleController } from "./role";
 import { programController } from "./program";
 import { getProgramIdOfAdminFromCmuaccount } from "../services/permission";
 import { getRoleOfUser } from "../repositories/permission";
+import { userController } from "./user";
 
 export const routes = (app: Elysia) => {
 	authController(app);
 	permissionController(app);
 	roleController(app);
 	programController(app);
+	userController(app);
 	//getProgramIdOfAdminFromCmuaccount
 	app.get(
 		"/api/getProgramIdOfAdminFromCmuaccount/:cmuAccount",

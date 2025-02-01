@@ -1,6 +1,6 @@
 import Elysia, { t } from "elysia";
-import {  checkIsAdmin, createAdmin } from "../services/permission";
-import { getRoleOfUser } from "../repositories/permission";
+import {  checkIsAdmin, checkIsAdminByEmail} from "../services/permission";
+import { createAdmin } from "../services/user";
 
 export const permissionController = (app: Elysia) => {
 	
@@ -27,30 +27,20 @@ export const permissionController = (app: Elysia) => {
 	);
 	
 	
-	//create admin
-	app.post(
-		"/api/createAdmin",
-		async (context) => {
-			const { userAccount, adminAccount, programId } = context.body;
-			
-			// Use the service to create admin
-			const permissionResponse = await createAdmin(userAccount, adminAccount, programId);
-
-			// Return the response to the client
-			return permissionResponse;
-		},
-		{
-			body: t.Object({
-				userAccount: t.String(), // Validate input
-				adminAccount: t.String(), // Validate input
-				programId: t.Number(), // Validate input
-			}),
-
-			detail:{
-				tags: ["Admin"],
-			}
+	//checkIsAdminByEmail
+	app.get("/api/checkIsAdminByEmail/:email", async (context) => {
+		const { email } = context.params;
+		const permissionResponse = await checkIsAdminByEmail(email);
+		return permissionResponse;
+	},
+	{
+		params: t.Object({
+			email: t.String(),
+		}),
+		detail: {
+			tags: ["Permission"],
 		}
-	)
+	});
 
 	
 	
