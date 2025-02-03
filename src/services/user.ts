@@ -26,18 +26,18 @@ export const createAdmin = async (userAccount: string, platformAdmin: string, pr
 
 }
 
-export const removeRoleAdminFromUserService = async (userAccount: string, platformAdmin: string, programId: number): Promise<BaseResponse> => {
+export const removeRoleAdminFromUserService = async (userAccount: string, platformAdmin: string): Promise<BaseResponse> => {
     try {
         const user = await getUserIDByCMUAccount(userAccount);
         const isPlatformAdmin = await checkIsPlatformAdminByCMUAccount(platformAdmin);
         if (!isPlatformAdmin) {
             throw new Error("You are don't have permission to remove admin");
         }
-        const checkProgramExists =await getProgramIdOfUser(user);
-        if (!checkProgramExists.some(program => program.programId === programId)) {
-            throw new Error("User is not admin of this program");
-        }
-        await removeRoleAdminFromUser(user, programId);
+        // const checkProgramExists =await getProgramIdOfUser(user);
+        // if (!checkProgramExists.some(program => program.programId === programId)) {
+        //     throw new Error("User is not admin of this program");
+        // }
+        await removeRoleAdminFromUser(user);
     } catch (error) {
         if (error instanceof Error) {
             return { success: false, message: error.message };

@@ -15,6 +15,13 @@
       "when": 1737949285703,
       "tag": "0001_add_new_program",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738564711186,
+      "tag": "0002_alter-relation",
+      "breakpoints": true
     }
   ]
 }

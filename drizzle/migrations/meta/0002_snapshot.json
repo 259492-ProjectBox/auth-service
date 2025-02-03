@@ -1,11 +1,11 @@
 {
-  "id": "4e78f951-c6a5-4cf8-be5b-25346610046f",
-  "prevId": "c6656768-9f99-42b3-bcb7-006e8bb06681",
+  "id": "7730ee6a-9936-4e15-9f15-2b099c0c6659",
+  "prevId": "ee8ea2d8-69c9-4a46-8c26-9963e9852750",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.program": {
-      "name": "program",
+    "public.programs": {
+      "name": "programs",
       "schema": "",
       "columns": {
         "id": {
@@ -14,8 +14,20 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "program_name_th": {
+          "name": "program_name_th",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "program_name_en": {
+          "name": "program_name_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "abbreviation": {
+          "name": "abbreviation",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -25,11 +37,18 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "program_name_key": {
-          "name": "program_name_key",
+        "program_name_th_key": {
+          "name": "program_name_th_key",
           "nullsNotDistinct": false,
           "columns": [
-            "name"
+            "program_name_th"
+          ]
+        },
+        "program_name_en_key": {
+          "name": "program_name_en_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "program_name_en"
           ]
         }
       },
@@ -98,9 +117,29 @@
           "primaryKey": false,
           "notNull": true
         },
-        "programid": {
-          "name": "programid",
+        "programs_id": {
+          "name": "programs_id",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdate": {
+          "name": "createdate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedate": {
+          "name": "updatedate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "createby": {
+          "name": "createby",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         }
@@ -133,15 +172,28 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "user_roles_programid_fkey": {
-          "name": "user_roles_programid_fkey",
+        "user_roles_programs_id_fkey": {
+          "name": "user_roles_programs_id_fkey",
           "tableFrom": "user_roles",
-          "tableTo": "program",
+          "tableTo": "programs",
           "columnsFrom": [
-            "programid"
+            "programs_id"
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_roles_createby_fkey": {
+          "name": "user_roles_createby_fkey",
+          "tableFrom": "user_roles",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createby"
+          ],
+          "columnsTo": [
+            "cmuaccount"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -155,6 +207,15 @@
           "columns": [
             "userid",
             "roleid"
+          ]
+        },
+        "user_roles_unique": {
+          "name": "user_roles_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "userid",
+            "roleid",
+            "programs_id"
           ]
         }
       },
@@ -270,6 +331,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "isactive": {
+          "name": "isactive",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "createdat": {
           "name": "createdat",
           "type": "timestamp",
@@ -289,8 +357,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_cmuaccount_unique": {
-          "name": "users_cmuaccount_unique",
+        "users_cmuaccount_key": {
+          "name": "users_cmuaccount_key",
           "nullsNotDistinct": false,
           "columns": [
             "cmuaccount"

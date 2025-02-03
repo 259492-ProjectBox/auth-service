@@ -56,7 +56,7 @@ CREATE TABLE user_roles (
     createDate TIMESTAMP DEFAULT now() NOT NULL,
     updateDate TIMESTAMP DEFAULT now() NOT NULL,
     createBy varchar(255),
-    CONSTRAINT user_roles_userId_roleId_unique UNIQUE (userId, roleId),
+    CONSTRAINT userid_roleid_programid UNIQUE (userId, roleId, programs_id),
     CONSTRAINT user_roles_userId_fkey FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT user_roles_roleId_fkey FOREIGN KEY (roleId) REFERENCES roles (id) ON DELETE CASCADE,
     CONSTRAINT user_roles_programs_id_fkey FOREIGN KEY (programs_id) REFERENCES programs (id) ON DELETE CASCADE,
@@ -71,3 +71,18 @@ VALUES
     ('alumni', 'Alumni role'),
     ('mis_employee', 'MIS Employee role'),
     ('platform_admin', 'Platform Admin role');
+
+
+--> statement-breakpoint
+INSERT INTO "programs" ("abbreviation", "program_name_en", "program_name_th") 
+VALUES 
+   ('CPE', 'Computer Engineering', 'วิศวกรรมคอมพิวเตอร์'),
+   ('ISNE', 'Information Systems and Network Engineering', 'วิศวกรรมระบบสารสนเทศและเครือข่าย'),
+   ('RE', 'Robotics Engineering and Artificial Intelligence', 'วิศวกรรมหุ่นยนต์และปัญญาประดิษฐ์'),
+   ('EE', 'Electrical Engineering', 'วิศวกรรมไฟฟ้า'),
+   ('ME', 'Mechanical Engineering', 'วิศวกรรมเครื่องกล'),
+   ('CE', 'Civil Engineering', 'วิศวกรรมโยธา'),
+   ('IE', 'Industrial Engineering', 'วิศวกรรมอุตสาหการ'),
+   ('INE', 'Integrated Engineering', 'วิศวกรรมบูรณาการ'),
+   ('ENVI', 'Environmental Engineering', 'วิศวกรรมสิ่งแวดล้อม'),
+   ('MPE', 'Mining and Petroleum Engineering', 'วิศวกรรมเหมืองแร่และปิโตรเลียม');

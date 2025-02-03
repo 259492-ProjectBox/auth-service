@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { getUserAccountThatNotStudentAndAlumni } from "../repositories/users";
+import { getAdmin, getUserAccountThatNotStudentAndAlumni } from "../repositories/users";
 import { createAdmin, removeRoleAdminFromUserService } from "../services/user";
 
 export const userController = (app: Elysia) => {
@@ -33,9 +33,9 @@ export const userController = (app: Elysia) => {
     }); 
 
     app.delete("/removeAdmin", async (context) => {
-        const { userAccount, adminAccount, programId } = context.body;
+        const { userAccount, adminAccount} = context.body;
         // Use the service to remove admin
-        const permissionResponse = await removeRoleAdminFromUserService(userAccount, adminAccount, programId);
+        const permissionResponse = await removeRoleAdminFromUserService(userAccount, adminAccount);
 
         // Return the response to the client
         return permissionResponse;
@@ -45,7 +45,6 @@ export const userController = (app: Elysia) => {
         body: t.Object({
             userAccount: t.String(),
             adminAccount: t.String(),
-            programId: t.Number(),
         }),
         detail: {
             tags: ["User"],
@@ -53,4 +52,14 @@ export const userController = (app: Elysia) => {
 
     }); 
     
+
+    app.get("/api/getAdmin", () => {
+        const admin = getAdmin();
+        return admin;
+    },
+    {
+        detail: {
+            tags: ["User"],
+        }
+    });
 }

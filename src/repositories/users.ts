@@ -1,6 +1,6 @@
 import { dbcontext } from "../../utils/drizzle";
-import { userRoles, users } from "../../drizzle/migrations/schema";
-import { and, eq, notInArray } from "drizzle-orm";
+import { programs, userRoles, users } from "../../drizzle/migrations/schema";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { RoleOfUser } from "../../types/Role";
 export const getUserIDByCMUAccount = async (cmuAccount: string): Promise<string> => {
     const user = await dbcontext.select({
@@ -29,9 +29,45 @@ export const createAdminByUserId = async (userId: string,programID : number , pl
         roleid: RoleOfUser.Admin,
         programsId: programID,
         createby:  platformAdmin,
-    })
+    }).onConflictDoUpdate({
+        target: [userRoles.userid, userRoles.programsId, userRoles.roleid],
+        set: {
+            updatedate: new Date().toISOString(),
+            createby: platformAdmin,
+        },
+    }).then((data) => data);
 }
 
-export const removeRoleAdminFromUser = async (userId: string, programId: number ): Promise<void> => {
-    await dbcontext.delete(userRoles).where(and(eq(userRoles.userid, userId), eq(userRoles.programsId, programId), eq(userRoles.roleid, RoleOfUser.Admin))).then((data) => data);
+export const removeRoleAdminFromUser = async (userId: string ): Promise<void> => {
+    await dbcontext.delete(userRoles).where(and(eq(userRoles.userid, userId), eq(userRoles.roleid, RoleOfUser.Admin))).then((data) => data);
 }
+
+
+// Function to get all admins with their associated program IDs using Drizzle ORM
+export const getAdmin = async (): Promise<any> => {
+    const admin = await dbcontext
+      .select({
+        cmuaccount: users.cmuaccount,
+        firstnameen: users.firstnameen,
+        firstnameth: users.firstnameth,
+        lastnameen: users.lastnameen,
+        lastnameth: users.lastnameth,
+        programs_ids: sql<string[]>`
+          array_agg(DISTINCT user_roles.programs_id) FILTER (WHERE user_roles.programs_id IS NOT NULL)
+        `,
+      })
+      .from(users)
+      .innerJoin(userRoles, eq(users.id, userRoles.userid))
+      .where(eq(userRoles.roleid, RoleOfUser.Admin))
+      .groupBy(
+        users.id,
+        users.cmuaccount,
+        users.firstnameen,
+        users.firstnameth,
+        users.lastnameen,
+        users.lastnameth
+      )
+      .then((data) => data);
+  
+    return admin;
+  };

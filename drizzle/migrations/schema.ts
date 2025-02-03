@@ -58,7 +58,7 @@ export const userRoles = pgTable("user_roles", {
 			foreignColumns: [users.cmuaccount],
 			name: "user_roles_createby_fkey"
 		}).onDelete("cascade"),
-	unique("user_roles_userid_roleid_unique").on(table.userid, table.roleid),
+	unique("userid_roleid_programid").on(table.userid, table.roleid, table.programsId),
 ]);
 
 export const roles = pgTable("roles", {
