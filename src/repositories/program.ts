@@ -1,5 +1,3 @@
-
-
 import { programs } from "../../drizzle/migrations/schema";
 import { dbcontext } from "../../utils/drizzle";
 import { Program } from "../dtos/program";
@@ -10,7 +8,7 @@ export async function GetAllProgram() {
     return allProgram;
 }
 
-export async function CreateProgram(program: Program): Promise<Program> {
+export async function UpsertProgram(program: Program): Promise<Program> {
     const [newProgram] = await dbcontext
         .insert(programs)
         .values({
@@ -19,7 +17,20 @@ export async function CreateProgram(program: Program): Promise<Program> {
             programNameEn: program.programNameEn,
             abbreviation: program.abbreviation,
         })
-        // .returning("*");
+        .onConflictDoUpdate({
+            target: programs.id,
+            set: {
+                programNameTh: program.programNameTh,
+                programNameEn: program.programNameEn,
+                abbreviation: program.abbreviation,
+            },
+        })
+        .returning({
+            id: programs.id,
+            programNameTh: programs.programNameTh,
+            programNameEn: programs.programNameEn,
+            abbreviation: programs.abbreviation,
+        });
 
     return newProgram;
 }
